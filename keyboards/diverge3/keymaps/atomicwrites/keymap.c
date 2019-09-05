@@ -15,123 +15,86 @@
  */
 #include QMK_KEYBOARD_H
 
-//**************** Definitions needed for quad function to work *********************//
-enum {
-  SE_TAP_DANCE = 0,
-  TD_ENT_SHFT = 1
-};
-//Enums used to clearly convey the state of the tap dance
-enum {
-  SINGLE_TAP = 1,
-  SINGLE_HOLD = 2,
-  DOUBLE_TAP = 3,
-  DOUBLE_HOLD = 4,
-  DOUBLE_SINGLE_TAP = 5 //send SINGLE_TAP twice - NOT DOUBLE_TAP
-  // Add more enums here if you want for triple, quadruple, etc.
-};
-
-typedef struct {
-  bool is_press_action;
-  int state;
-} tap;
-
-int cur_dance (qk_tap_dance_state_t *state) {
-  if (state->count == 1) {
-    //If count = 1, and it has been interrupted - it doesn't matter if it is pressed or not: Send SINGLE_TAP
-    if (state->interrupted || state->pressed==0) return SINGLE_TAP;
-    else return SINGLE_HOLD;
-  }
-  //If count = 2, and it has been interrupted - assume that user is trying to type the letter associated
-  //with single tap. In example below, that means to send `xx` instead of `Escape`.
-  else if (state->count == 2) {
-    if (state->interrupted) return DOUBLE_SINGLE_TAP;
-    else if (state->pressed) return DOUBLE_HOLD;
-    else return DOUBLE_TAP;
-  }
-  else return 6; //magic number. At some point this method will expand to work for more presses
-}
-
-//**************** Definitions needed for quad function to work *********************//
-// Backspace Shift TD
-//instanalize an instance of 'tap' for the 'x' tap dance.
-static tap se_tap_state = {
-  .is_press_action = true,
-  .state = 0
+enum combos {
+  QZ_A,
+  WX_S,
+  EC_D,
+  RV_F,
+  TB_G,
+  YN_H,
+  UM_J,
+  ICOMMA_K,
+  ODOT_L,
+  PSLASH_SCOLON,
+  MCOMMA_SPC,
+  CV_SPC,
+  ER_TAB,
+  UI_ENT,
 };
 
-void se_finished (qk_tap_dance_state_t *state, void *user_data) {
-  se_tap_state.state = cur_dance(state);
-  switch (se_tap_state.state) {
-    case SINGLE_TAP: register_code(KC_SPC); break;
-    case SINGLE_HOLD: register_code(KC_ENT); break;
-    default: register_code(KC_SPC); unregister_code(KC_SPC); register_code(KC_SPC);
-    //Last case is for fast typing. Assuming your key is `f`:
-    //For example, when typing the word `buffer`, and you want to make sure that you send `ff` and not `Esc`.
-    //In order to type `ff` when typing fast, the next character will have to be hit within the `TAPPING_TERM`, which by default is 200ms.
-  }
-}
+const uint16_t PROGMEM qz_combo[] = {KC_Q, KC_Z, COMBO_END};
+const uint16_t PROGMEM wx_combo[] = {KC_W, KC_X, COMBO_END};
+const uint16_t PROGMEM ec_combo[] = {KC_E, KC_C, COMBO_END};
+const uint16_t PROGMEM rv_combo[] = {KC_R, KC_V, COMBO_END};
+const uint16_t PROGMEM tb_combo[] = {KC_T, KC_B, COMBO_END};
+const uint16_t PROGMEM yn_combo[] = {KC_Y, KC_N, COMBO_END};
+const uint16_t PROGMEM um_combo[] = {KC_U, KC_M, COMBO_END};
+const uint16_t PROGMEM icomma_combo[] = {KC_I, KC_COMMA, COMBO_END};
+const uint16_t PROGMEM odot_combo[] = {KC_O, KC_DOT, COMBO_END};
+const uint16_t PROGMEM pslash_combo[] = {KC_P, KC_SLASH, COMBO_END};
+const uint16_t PROGMEM mcomma_combo[] = {KC_M, KC_COMMA, COMBO_END};
+const uint16_t PROGMEM cv_combo[] = {KC_C, KC_V, COMBO_END};
+const uint16_t PROGMEM er_combo[] = {KC_E, KC_R, COMBO_END};
+const uint16_t PROGMEM ui_combo[] = {KC_U, KC_I, COMBO_END};
 
-void se_reset (qk_tap_dance_state_t *state, void *user_data) {
-  switch (se_tap_state.state) {
-    case SINGLE_TAP: unregister_code(KC_SPC); break;
-    case SINGLE_HOLD: unregister_code(KC_ENT); break;
-    default: unregister_code(KC_SPC);
-  }
-  se_tap_state.state = 0;
-}
-
-qk_tap_dance_action_t tap_dance_actions[] = {
-  [SE_TAP_DANCE] = ACTION_TAP_DANCE_FN_ADVANCED(NULL, se_finished, se_reset),
-  [TD_ENT_SHFT] = ACTION_TAP_DANCE_DOUBLE(KC_ENT, KC_RSFT)
+combo_t key_combos[COMBO_COUNT] = {
+  [QZ_A] = COMBO(qz_combo, KC_A),
+  [WX_S] = COMBO(wx_combo, KC_S),
+  [EC_D] = COMBO(ec_combo, KC_D),
+  [RV_F] = COMBO(rv_combo, KC_F),
+  [TB_G] = COMBO(tb_combo, KC_G),
+  [YN_H] = COMBO(yn_combo, KC_H),
+  [UM_J] = COMBO(um_combo, KC_J),
+  [ICOMMA_K] = COMBO(icomma_combo, KC_K),
+  [ODOT_L] = COMBO(odot_combo, KC_L),
+  [PSLASH_SCOLON] = COMBO(pslash_combo, KC_SCOLON),
+  [MCOMMA_SPC] = COMBO(mcomma_combo, KC_SPC),
+  [CV_SPC] = COMBO(cv_combo, KC_SPC),
+  [ER_TAB] = COMBO(er_combo, KC_TAB),
+  [UI_ENT] = COMBO(ui_combo, KC_ENT),
 };
-
-// KEYMAP
-extern keymap_config_t keymap_config;
-
-#define _QWERTY 0
-#define _LOWER 1
-
-enum custom_keycodes {
-  PAREN_MACRO = SAFE_RANGE,
-  ARROW_MACRO,
-  PSELF_MACRO
-};
-
-// Macros
-#define KC_PMAC PAREN_MACRO
-#define KC_AMAC ARROW_MACRO
 
 // Holds for layer
-/*#define KC_DEL1 LT(_LOWER, KC_DEL)*/
-/*#define KC_TAB1 LT(_LOWER, KC_TAB)*/
-#define KC_SPC1 LT(1, KC_SPC)
-
-// Space on tap, enter on hold.
-#define KC_SPNT TD(SE_TAP_DANCE)
-
-#define KC_BSHT SFT_T(KC_BSPC)
-
-#define KC_ENSFT TD(TD_ENT_SHFT)
+#define KC_SPC2 LT(2, KC_SPC)
 
 // Jumps the cursor a word right or left
 #define KC_WRDRT LCTL(KC_RIGHT)
 #define KC_WRDLT LCTL(KC_LEFT)
+#define __x__ KC_NO
 
 const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
-	[0] = LAYOUT(
-        KC_CAPS, KC_GRV , KC_1  , KC_2   , KC_3  , KC_4   , KC_5   ,                  KC_6   , KC_7  , KC_8   , KC_9   , KC_0   , KC_MINS, KC_EQL ,
-        KC_TAB , KC_Q   , KC_W  , KC_E   , KC_R  , KC_T   , KC_LBRC,                  KC_RBRC, KC_Y  , KC_U   , KC_I   , KC_O   , KC_P   , KC_BSLS,
-        KC_ESC , KC_A   , KC_S  , KC_D   , KC_F  , KC_G   , KC_MUTE,                  KC_MPLY, KC_H  , KC_J   , KC_K   , KC_L   , KC_SCLN, KC_QUOT,
-        KC_LSFT, KC_Z   , KC_X  , KC_C   , KC_V  , KC_B   , KC_PGUP,                  KC_PGDN, KC_N  , KC_M   , KC_COMM, KC_DOT , KC_UP  , KC_SLSH,
-        KC_HOME, KC_LGUI, KC_APP, KC_LALT, KC_SPC, KC_LCTL, KC_LSFT, KC_BSPC, KC_DEL, KC_END , KC_ENT, KC_SPC1, KC_DOWN, KC_LEFT, KC_DOWN, KC_RGHT
+	[1] = LAYOUT(
+        KC_CAPS, KC_GRV , KC_1  , KC_2   , KC_3  , KC_4   , KC_5   ,                  KC_6   , KC_7    , KC_8   , KC_9   , KC_0   , KC_MINS, KC_EQL ,
+        KC_TAB , KC_Q   , KC_W  , KC_E   , KC_R  , KC_T   , KC_LBRC,                  KC_RBRC, KC_Y    , KC_U   , KC_I   , KC_O   , KC_P   , KC_BSLS,
+        KC_ESC , KC_A   , KC_S  , KC_D   , KC_F  , KC_G   , KC_MUTE,                  KC_MPLY, KC_H    , KC_J   , KC_K   , KC_L   , KC_SCLN, KC_QUOT,
+        KC_LSFT, KC_Z   , KC_X  , KC_C   , KC_V  , KC_B   , KC_PGUP,                  KC_PGDN, KC_N    , KC_M   , KC_COMM, KC_DOT , KC_UP  , KC_SLSH,
+        KC_HOME, KC_LGUI, KC_APP, KC_LALT, KC_SPC, KC_LCTL, KC_LSFT, KC_BSPC, KC_DEL, KC_END , KC_SPC2 , KC_ENT , KC_DOWN, KC_LEFT, KC_DOWN, KC_RGHT
         ) ,
 
-	[1] = LAYOUT(
-        RESET  , KC_F1  , KC_F2  , KC_F3  , KC_F4  , KC_F5  , KC_F6  ,                   KC_F7  , KC_F8  , KC_F9  , KC_F10 , KC_F11 , KC_F12 , RESET  ,
-        _______, _______, _______, KC_UP  , _______, _______, _______,                   _______, _______, _______, _______, _______, _______, _______,
-        _______, _______, KC_LEFT, KC_DOWN, KC_RGHT, KC_VOLU, _______,                   _______, _______, _______, _______, _______, _______, _______,
-        _______, KC_MPRV, KC_MPLY, KC_MSTP, KC_MNXT, KC_VOLD, _______,                   _______, _______, _______, _______, _______, _______, _______,
-        _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______
+	[0] = LAYOUT(
+        TG(1)  , KC_GRV , KC_1  , KC_2   , KC_3  , KC_4  , KC_5  ,                   KC_6    , KC_7  , KC_8   , KC_9   , KC_0   , KC_MINS, KC_EQL ,
+        KC_LBRC, KC_TAB , KC_1  , KC_2   , KC_3  , KC_4  , KC_5  ,                   KC_6    , KC_7  , KC_8   , KC_9   , KC_0   , KC_BSLS, KC_RBRC, 
+        KC_MUTE, KC_ESC , KC_Q   , KC_W  , KC_E  , KC_R  , KC_T  ,                   KC_Y    , KC_U  , KC_I   , KC_O   , KC_P   , KC_QUOT, KC_MPLY, 
+        KC_PGUP, KC_LSFT, KC_Z   , KC_X  , KC_C  , KC_V  , KC_B  ,                   KC_N    , KC_M  , KC_COMM, KC_DOT , KC_SLSH, KC_UP  , KC_PGDN, 
+        KC_HOME, KC_LGUI, KC_APP, KC_LALT, KC_SPC, KC_LCTL, KC_LSFT, KC_BSPC, KC_DEL, KC_END , KC_SPC2, KC_ENT, KC_DOWN, KC_LEFT, KC_DOWN, KC_RGHT
+        ) ,
+
+	[2] = LAYOUT(
+        TG(1)   , KC_F1  , KC_F2  , KC_F3  , KC_F4  , KC_F5  , KC_F6  ,                   KC_F7  , KC_F8  , KC_F9  , KC_F10 , KC_F11 , KC_F12 , RESET  ,
+        _______ , _______, _______, KC_UP  , _______, _______, _______,                   _______, _______, _______, _______, _______, _______, _______,
+        _______ , _______, KC_1   , KC_2   , KC_3   , KC_4   , KC_5   ,                   KC_6   , KC_7   , KC_8   , KC_9   , KC_0   , _______, _______,
+        _______ , KC_MPRV, KC_MPLY, KC_MSTP, KC_MNXT, KC_VOLD, _______,                   _______, _______, _______, _______, _______, _______, _______,
+        _______ , _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______
         )
 };
 
@@ -154,17 +117,3 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
   /*)*/
 
 /*};*/
-
-bool process_record_user(uint16_t keycode, keyrecord_t *record) {
-    if (record->event.pressed) {
-        switch(keycode) {
-            case PAREN_MACRO:
-                SEND_STRING("()");
-                return false; break;
-            case ARROW_MACRO:
-                SEND_STRING("->");
-                return false; break;
-        }
-    }
-    return true;
-};
