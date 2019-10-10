@@ -1,7 +1,11 @@
 
-RGBLIGHT_ENABLE = no
-RGB_MATRIX_ENABLE = WS2812
+RGBLIGHT_ENABLE = yes
+#RGB_MATRIX_ENABLE = WS2812
 
+COMBO_ENABLE = yes
+MOUSEKEY_ENABLE = yes
+
+CFLAGS += -flto
 # If you want to change the display of OLED, you need to change here
 SRC +=  ./lib/glcdfont.c \
         ./lib/rgb_state_reader.c \

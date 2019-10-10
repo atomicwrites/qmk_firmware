@@ -9,14 +9,64 @@ extern rgblight_config_t rgblight_config;
 
 extern uint8_t is_master;
 
+enum combos {
+  QZ_A,
+  WX_S,
+  EC_D,
+  RV_F,
+  TB_G,
+  YN_H,
+  UM_J,
+  ICOMMA_K,
+  ODOT_L,
+  PSLASH_SCOLON,
+  MCOMMA_SPC,
+  CV_SPC,
+  ER_TAB,
+  UI_ENT,
+};
+
+const uint16_t PROGMEM qz_combo[] = {KC_Q, KC_Z, COMBO_END};
+const uint16_t PROGMEM wx_combo[] = {KC_W, KC_X, COMBO_END};
+const uint16_t PROGMEM ec_combo[] = {KC_E, KC_C, COMBO_END};
+const uint16_t PROGMEM rv_combo[] = {KC_R, KC_V, COMBO_END};
+const uint16_t PROGMEM tb_combo[] = {KC_T, KC_B, COMBO_END};
+const uint16_t PROGMEM yn_combo[] = {KC_Y, KC_N, COMBO_END};
+const uint16_t PROGMEM um_combo[] = {KC_U, KC_M, COMBO_END};
+const uint16_t PROGMEM icomma_combo[] = {KC_I, KC_COMMA, COMBO_END};
+const uint16_t PROGMEM odot_combo[] = {KC_O, KC_DOT, COMBO_END};
+const uint16_t PROGMEM pslash_combo[] = {KC_P, KC_SLASH, COMBO_END};
+const uint16_t PROGMEM mcomma_combo[] = {KC_M, KC_COMMA, COMBO_END};
+const uint16_t PROGMEM cv_combo[] = {KC_C, KC_V, COMBO_END};
+const uint16_t PROGMEM er_combo[] = {KC_E, KC_R, COMBO_END};
+const uint16_t PROGMEM ui_combo[] = {KC_U, KC_I, COMBO_END};
+
+combo_t key_combos[COMBO_COUNT] = {
+  [QZ_A] = COMBO(qz_combo, KC_A),
+  [WX_S] = COMBO(wx_combo, KC_S),
+  [EC_D] = COMBO(ec_combo, KC_D),
+  [RV_F] = COMBO(rv_combo, KC_F),
+  [TB_G] = COMBO(tb_combo, KC_G),
+  [YN_H] = COMBO(yn_combo, KC_H),
+  [UM_J] = COMBO(um_combo, KC_J),
+  [ICOMMA_K] = COMBO(icomma_combo, KC_K),
+  [ODOT_L] = COMBO(odot_combo, KC_L),
+  [PSLASH_SCOLON] = COMBO(pslash_combo, KC_SCOLON),
+  [MCOMMA_SPC] = COMBO(mcomma_combo, KC_SPC),
+  [CV_SPC] = COMBO(cv_combo, KC_SPC),
+  [ER_TAB] = COMBO(er_combo, KC_TAB),
+  [UI_ENT] = COMBO(ui_combo, KC_ENT),
+};
+
 // Each layer gets a name for readability, which is then used in the keymap matrix below.
 // The underscores don't mean anything - you can have a layer called STUFF or any other name.
 // Layer names don't all need to be of the same length, obviously, and you can also skip them
 // entirely and just use numbers.
-#define _QWERTY 3
+#define _QWERTY 4
+#define _CHORD 0
 #define _LOWER 1
 #define _RAISE 2
-#define _ADJUST 0
+#define _ADJUST 3
 
 enum custom_keycodes {
   QWERTY = SAFE_RANGE,
@@ -40,17 +90,30 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
   //|------+------+------+------+------+------|                |------+------+------+------+------+------|
     KC_LSFT,  KC_Z,  KC_X,  KC_C,  KC_V,  KC_B,                   KC_N,  KC_M,KC_COMM,KC_DOT,KC_SLSH,KC_RSFT,\
   //|------+------+------+------+------+------+------|  |------+------+------+------+------+------+------|
-                                KC_LGUI, LOWER,KC_SPC,   KC_ENT, RAISE,KC_RALT \
+                                KC_LGUI, LOWER,KC_BSPC,   KC_ENT, RAISE,KC_RALT \
+                              //`--------------------'  `--------------------'
+  ),
+
+
+  [_CHORD] = LAYOUT( \
+  //,-----------------------------------------.                ,-----------------------------------------.
+     KC_ESC,  KC_1,  KC_2,  KC_3,  KC_4,  KC_5,                   KC_6,  KC_7,  KC_8,  KC_9,  KC_0,KC_BSLS,\
+  //|------+------+------+------+------+------|                |------+------+------+------+------+------|
+     KC_LCTL,  KC_Q,  KC_W,  KC_E,  KC_R,  KC_T,                   KC_Y,  KC_U,  KC_I,  KC_O,  KC_P,KC_QUOT,\
+  //|------+------+------+------+------+------|                |------+------+------+------+------+------|
+    KC_LGUI,  KC_Z,  KC_X,  KC_C,  KC_V,  KC_B,                 KC_N,  KC_M,KC_COMM,KC_DOT,KC_SLSH,KC_RSFT,\
+  //|------+------+------+------+------+------+------|  |------+------+------+------+------+------+------|
+                               LOWER,KC_LSFT, KC_BSPC,   KC_DEL, RAISE,KC_RALT \
                               //`--------------------'  `--------------------'
   ),
 
   [_LOWER] = LAYOUT( \
   //,-----------------------------------------.                ,-----------------------------------------.
+    KC_LSFT, KC_NO, KC_NO, KC_NO, KC_NO, KC_NO,                  KC_NO, KC_NO, KC_NO, KC_NO, KC_NO, KC_NO,\
+  //|------+------+------+------+------+------|                |------+------+------+------+------+------|
      KC_ESC,  KC_1,  KC_2,  KC_3,  KC_4,  KC_5,                   KC_6,  KC_7,  KC_8,  KC_9,  KC_0,KC_BSPC,\
   //|------+------+------+------+------+------|                |------+------+------+------+------+------|
     KC_LCTL, KC_NO, KC_NO, KC_NO, KC_NO, KC_NO,                KC_LEFT,KC_DOWN,KC_UP, KC_RIGHT,KC_NO,KC_NO,\
-  //|------+------+------+------+------+------|                |------+------+------+------+------+------|
-    KC_LSFT, KC_NO, KC_NO, KC_NO, KC_NO, KC_NO,                  KC_NO, KC_NO, KC_NO, KC_NO, KC_NO, KC_NO,\
   //|------+------+------+------+------+------+------|  |------+------+------+------+------+------+------|
                                 KC_LGUI, LOWER,KC_SPC,   KC_ENT, RAISE,KC_RALT \
                               //`--------------------'  `--------------------'
@@ -60,9 +123,9 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
   //,-----------------------------------------.                ,-----------------------------------------.
      KC_ESC,KC_EXLM,KC_AT,KC_HASH,KC_DLR,KC_PERC,              KC_CIRC,KC_AMPR,KC_ASTR,KC_LPRN,KC_RPRN,KC_BSPC,\
   //|------+------+------+------+------+------|                |------+------+------+------+------+------|
-    KC_LCTL, KC_NO, KC_NO, KC_NO, KC_NO, KC_NO,                KC_MINS,KC_EQL,KC_LCBR,KC_RCBR,KC_PIPE,KC_GRV,\
+    KC_LCTL, KC_NO, KC_NO, KC_NO,KC_WH_U, KC_NO,               KC_MINS,KC_EQL,KC_LCBR,KC_RCBR,KC_PIPE,KC_GRV,\
   //|------+------+------+------+------+------|                |------+------+------+------+------+------|
-    KC_LSFT, KC_NO, KC_NO, KC_NO, KC_NO, KC_NO,                KC_UNDS,KC_PLUS,KC_LBRC,KC_RBRC,KC_BSLS,KC_TILD,\
+    KC_LSFT, KC_NO, KC_NO, KC_NO,KC_WH_D, KC_NO,               KC_UNDS,KC_PLUS,KC_LBRC,KC_RBRC,KC_BSLS,KC_TILD,\
   //|------+------+------+------+------+------+------|  |------+------+------+------+------+------+------|
                                 KC_LGUI, LOWER,KC_SPC,   KC_ENT, RAISE,KC_RALT \
                               //`--------------------'  `--------------------'
