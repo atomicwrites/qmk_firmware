@@ -21,20 +21,24 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #pragma once
 
 //#define USE_MATRIX_I2C
+#ifdef KEYBOARD_crkbd_rev1_common
+#    undef USE_I2C
+#    define USE_SERIAL
+#endif
 
 /* Select hand configuration */
 #define MASTER_LEFT
 // #define MASTER_RIGHT
 // #define EE_HANDS
 
-#define SSD1306OLED
+//#define SSD1306OLED
 
 #define USE_SERIAL_PD2
 
 #define TAPPING_FORCE_HOLD
 // PERMISSIVE_HOLD does some magic that gets rid of the lag when using COMBOs.
 #define PERMISSIVE_HOLD
-#define TAPPING_TERM 100
+#define TAPPING_TERM 200
 #define COMBO_COUNT 14
 
 #ifdef RGBLIGHT_ENABLE
@@ -47,3 +51,4 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
     #define RGBLIGHT_VAL_STEP 17
 #endif
 
+#define OLED_FONT_H "keyboards/crkbd/lib/glcdfont.c"
